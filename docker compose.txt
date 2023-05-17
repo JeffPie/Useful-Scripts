@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+  somedb:
+    image: mariadb:10.6.4-focal
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: PassWord#123
+      MYSQL_DATABASE: ihcsdb
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: PassWord#123
+    networks:
+      somenetwork:
+        ipv4_address: 172.21.0.2
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+  wordpress:
+    depends_on:
+      - somedb
+    image: wordpress:latest
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: ihcsdb:3306
+      WORDPRESS_DB_USER: admin
+      WORDPRESS_DB_PASSWORD: PassWord#123
+      WORDPRESS_DB_NAME: ihcsdb
+    networks:
+      ihcs-network:
+        ipv4_address: 172.21.0.3
+    volumes:
+      - ./wordpress:/var/www/html
+      - ./php.ini:/usr/local/etc/php/php.ini
+
+networks:
+    some-network:
+      external: true
+        #driver: bridge
+        #ipam:
+        # config:
+        # - subnet: 172.21.0.0/16
+        #  gateway: 172.21.0.1
